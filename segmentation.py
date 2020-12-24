@@ -99,10 +99,11 @@ if __name__ == '__main__':
 
     os.mkdir('results')
 
-    foldername = 'data/depth'
+    folder_color = 'data/color'
+    folder_depth = 'data/depth'
 
-    filename_list = list(pathlib.Path(
-        foldername).glob('*.png'))
+    filename_list_color = list(pathlib.Path(folder_color).glob('*.png'))
+    filename_list_depth = list(pathlib.Path(folder_depth).glob('*.png'))
 
     # fig, ax = plt.subplots(1, 2, figsize=(12, 6))
     # ax[0].set_title('image')
@@ -110,17 +111,24 @@ if __name__ == '__main__':
 
     # image_list = []
     # markers_list = []
-    i = 0
-    for filename in tqdm(filename_list):
-        image = cv2.imread(
-            '{}/{}'.format(foldername, filename.name), cv2.IMREAD_ANYDEPTH)
-        markers = segmentation(image)
+    # i = 0
+    for i in tqdm(range(len(filename_list_depth))):
+        image_color = cv2.imread('{}/{}'.format(folder_color, filename_list_color[i].name))
+        image_depth = cv2.imread('{}/{}'.format(folder_depth, filename_list_depth[i].name), cv2.IMREAD_ANYDEPTH)
+        markers = segmentation(image_depth)
 
-        markers_color = cv2.convertScaleAbs(markers, alpha=(255 / np.max(markers)))
+        markers_color = cv2.convertScaleAbs(
+            markers, alpha=(255 / np.max(markers)))
         markers_color = cv2.applyColorMap(markers_color, cv2.COLORMAP_RAINBOW)
         markers_color[markers == 1] = [0, 0, 0]
-        cv2.imwrite('results/result{:08}.png'.format(i), markers_color)
-        i += 1
+        blended = cv2.addWeighted(
+            src1=image_color,
+            alpha=0.7,
+            src2=markers_color,
+            beta=0.3,
+            gamma=0)
+        cv2.imwrite('results/result{:08}.png'.format(i), blended)
+        # i += 1
 
         # image_list.append(image)
         # markers_list.append(markers)
