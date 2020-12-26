@@ -10,7 +10,7 @@ from tqdm import tqdm
 def segmentation(image):
     ret, thresh = cv2.threshold(
         image, 0, 1, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)
-    thresh[image == 0] = 0
+    # thresh[image == 0] = 0
 
     # add outline
     laplacian = cv2.Laplacian(image, cv2.CV_8U, ksize=5)
@@ -99,8 +99,8 @@ if __name__ == '__main__':
 
     os.mkdir('results')
 
-    folder_color = 'data/color'
-    folder_depth = 'data/depth'
+    folder_color = 'images/flying_arrow/color'
+    folder_depth = 'images/flying_arrow/depth'
 
     filename_list_color = list(pathlib.Path(folder_color).glob('*.png'))
     filename_list_depth = list(pathlib.Path(folder_depth).glob('*.png'))
@@ -113,8 +113,10 @@ if __name__ == '__main__':
     # markers_list = []
     # i = 0
     for i in tqdm(range(len(filename_list_depth))):
-        image_color = cv2.imread('{}/{}'.format(folder_color, filename_list_color[i].name))
-        image_depth = cv2.imread('{}/{}'.format(folder_depth, filename_list_depth[i].name), cv2.IMREAD_ANYDEPTH)
+        image_color = cv2.imread(
+            '{}/{}'.format(folder_color, filename_list_color[i].name))
+        image_depth = cv2.imread(
+            '{}/{}'.format(folder_depth, filename_list_depth[i].name), cv2.IMREAD_ANYDEPTH)
         markers = segmentation(image_depth)
 
         markers_color = cv2.convertScaleAbs(
